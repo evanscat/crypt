@@ -15,6 +15,14 @@ type KVPair struct {
 
 type KVPairs []*KVPair
 
+type Option func(map[string]interface{})
+
+func WithOption(k string,v interface{}) Option{
+	return func(i map[string]interface{}) {
+		i[k] = v
+	}
+}
+
 // A Store is a K/V store backend that retrieves and sets, and monitors
 // data in a K/V store.
 type Store interface {

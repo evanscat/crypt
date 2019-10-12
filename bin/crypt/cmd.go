@@ -7,11 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
-	"github.com/xordataexchange/crypt/backend"
-	"github.com/xordataexchange/crypt/backend/consul"
-	"github.com/xordataexchange/crypt/backend/etcd"
-	"github.com/xordataexchange/crypt/encoding/secconf"
+	"github.com/evanscat/crypt/backend"
+	"github.com/evanscat/crypt/backend/consul"
+	"github.com/evanscat/crypt/backend/etcd"
+	"github.com/evanscat/crypt/encoding/secconf"
 )
 
 func getCmd(flagset *flag.FlagSet) {
@@ -201,6 +202,13 @@ func setEncrypted(key, keyring string, d []byte, store backend.Store) error {
 }
 
 func getBackendStore(provider string, endpoint string) (backend.Store, error) {
+	valueList := strings.Split(provider, ":")
+	var consulToken string
+	if len(valueList) == 2 {
+		consulToken = valueList[1]
+		provider = valueList[0]
+	}
+
 	if endpoint == "" {
 		switch provider {
 		case "consul":
@@ -214,7 +222,11 @@ func getBackendStore(provider string, endpoint string) (backend.Store, error) {
 	case "etcd":
 		return etcd.New(machines)
 	case "consul":
-		return consul.New(machines)
+		if len(consulToken) == 0 {
+			return consul.New(machines)
+		} else {
+			return consul.New(machines, backend.WithOption("token", consulToken))
+		}
 	default:
 		return nil, errors.New("invalid backend " + provider)
 	}

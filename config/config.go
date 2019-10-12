@@ -5,10 +5,10 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/xordataexchange/crypt/backend"
-	"github.com/xordataexchange/crypt/backend/consul"
-	"github.com/xordataexchange/crypt/backend/etcd"
-	"github.com/xordataexchange/crypt/encoding/secconf"
+	"github.com/evanscat/crypt/backend"
+	"github.com/evanscat/crypt/backend/consul"
+	"github.com/evanscat/crypt/backend/etcd"
+	"github.com/evanscat/crypt/encoding/secconf"
 )
 
 type KVPair struct {
@@ -57,8 +57,8 @@ func NewStandardEtcdConfigManager(machines []string) (ConfigManager, error) {
 }
 
 // NewStandardConsulConfigManager returns a new ConfigManager backed by consul.
-func NewStandardConsulConfigManager(machines []string) (ConfigManager, error) {
-	store, err := consul.New(machines)
+func NewStandardConsulConfigManager(machines []string,options ...backend.Option) (ConfigManager, error) {
+	store, err := consul.New(machines,options...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func NewStandardConsulConfigManager(machines []string) (ConfigManager, error) {
 
 // NewEtcdConfigManager returns a new ConfigManager backed by etcd.
 // Data will be encrypted.
-func NewEtcdConfigManager(machines []string, keystore io.Reader) (ConfigManager, error) {
+func NewEtcdConfigManager(machines []string, keystore io.Reader,options ...backend.Option) (ConfigManager, error) {
 	store, err := etcd.New(machines)
 	if err != nil {
 		return nil, err
@@ -77,8 +77,8 @@ func NewEtcdConfigManager(machines []string, keystore io.Reader) (ConfigManager,
 
 // NewConsulConfigManager returns a new ConfigManager backed by consul.
 // Data will be encrypted.
-func NewConsulConfigManager(machines []string, keystore io.Reader) (ConfigManager, error) {
-	store, err := consul.New(machines)
+func NewConsulConfigManager(machines []string, keystore io.Reader,options ...backend.Option) (ConfigManager, error) {
+	store, err := consul.New(machines,options...)
 	if err != nil {
 		return nil, err
 	}

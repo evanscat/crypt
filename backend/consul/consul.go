@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xordataexchange/crypt/backend"
+	"github.com/evanscat/crypt/backend"
 
 	"github.com/armon/consul-api"
 )
@@ -15,11 +15,20 @@ type Client struct {
 	waitIndex uint64
 }
 
-func New(machines []string) (*Client, error) {
+func New(machines []string, options ...backend.Option) (*Client, error) {
 	conf := consulapi.DefaultConfig()
+	params := make(map[string]interface{})
+	for _, v := range options {
+		v(params)
+	}
+	if token, ok := params["token"]; ok {
+		conf.Token, _ = token.(string)
+	}
 	if len(machines) > 0 {
 		conf.Address = machines[0]
 	}
+	//	conf.Token = "bd63ce16-ccd0-22e1-d37d-fb948232cbf5"
+
 	client, err := consulapi.NewClient(conf)
 	if err != nil {
 		return nil, err
